@@ -14,8 +14,11 @@
 #		-returnedfield=(see below).for returned data
 
 #the first field returned is the index for the entry. so you will see multiple 1's or so which mean all the fields returned are related.
+#Version 1.1 changes:
+	#changed the output to just output on a single line the returnedfields you requested.
 
-my $VERSION=1.0;
+
+my $VERSION=1.1;
 
 # @ARGV is the command listing passed in
 # $#ARGV is the number of arguments passed in minus 1
@@ -150,9 +153,13 @@ my($verbose)=0;				#verbose setting. 1 = output debug info
 						#we need to store the href here
 						if($datacounter ge 1)
 						{
-							$returnedsearchdata{$rowcounter}{'href'}=$attr->{href};
-							if($verbose ne 0){print "\thref: ".$returnedsearchdata{$rowcounter}{'href'}."\n";}
+							if($attr->{href} ne '')
+							{
+								$returnedsearchdata{$rowcounter}{'href'}=$attr->{href};
+								if($verbose ne 0){print "\thref: ".$returnedsearchdata{$rowcounter}{'href'}."\n";}
+							}
 							$href=1;
+							
 						}
 						$tagend=0;
 					}
@@ -212,8 +219,10 @@ my($verbose)=0;				#verbose setting. 1 = output debug info
 	{
 		my($self,$origtext,$is_cdata)=@_;
 		chomp($origtext);
-		$origtext=~s/^\s+//;
-		$origtext=~s/\s+$//;
+		$origtext=~s/^\s*//;
+		$origtext=~s/\s*$//;
+		
+		
 		if($filesearching==0 || $verbose ne 0)
 		{
 			if($origtext ne ''){print "Plain Text: $origtext\n";}
@@ -231,26 +240,46 @@ my($verbose)=0;				#verbose setting. 1 = output debug info
 			#print "Datecounter: $datacounter\n";	
 			if($datacounter eq 1)
 			{
-				$returnedsearchdata{$rowcounter}{'location'}=$origtext;
-				if($verbose ne 0){print "\tLocation: ".$returnedsearchdata{$rowcounter}{'location'}."\n";}
+				if ($origtext ne '')
+				{
+					if($origtext ne '&nbsp;')
+					{
+						$returnedsearchdata{$rowcounter}{'location'}=$origtext;
+						if($verbose ne 0){print "\tLocation: ".$returnedsearchdata{$rowcounter}{'location'}."\n";}
+					}
+					else
+					{
+						$insideregion=0;
+						#print "OUTSIDE REGION\n";
+					}
+				}
 			}
 			elsif($datacounter eq 3)
 			{
-				$returnedsearchdata{$rowcounter}{'filesize'}=$origtext;
-				if($verbose ne 0){print "\tFilesize: ".$returnedsearchdata{$rowcounter}{'filesize'}."\n";}
+				if($origtext ne '')
+				{
+					$returnedsearchdata{$rowcounter}{'filesize'}=$origtext;
+					if($verbose ne 0){print "\tFilesize: ".$returnedsearchdata{$rowcounter}{'filesize'}."\n";}
+				}
 			}
 			elsif($datacounter eq 2 && $href==1)
 			{
 				#we are in a plain text option for a hfref
-				$returnedsearchdata{$rowcounter}{'filename'}=$origtext;
-				if($verbose ne 0){print "\tFilename: ".$returnedsearchdata{$rowcounter}{'filename'}."\n";}
+				if($origtext ne '')
+				{
+					$returnedsearchdata{$rowcounter}{'filename'}=$origtext;
+					if($verbose ne 0){print "\tFilename: ".$returnedsearchdata{$rowcounter}{'filename'}."\n";}
+				}
 				$href=0;
 				
 			}
 			elsif($datacounter eq 4)
 			{
-				$returnedsearchdata{$rowcounter}{'date'}=$origtext;
-				if($verbose ne 0){print "\tDate: ".$returnedsearchdata{$rowcounter}{'date'}."\n";}
+				if ($origtext ne '')
+				{
+					$returnedsearchdata{$rowcounter}{'date'}=$origtext;
+					if($verbose ne 0){print "\tDate: ".$returnedsearchdata{$rowcounter}{'date'}."\n";}
+				}
 			}
 		
 		}
@@ -300,13 +329,17 @@ sub main()
 		{
 			my(%tmphash)=%{$returnedsearchdata{$key}};
 			
+			my($tmpdata)='';
+			
 			foreach my $retfield (@returnedfield)
 			{
 				if($tmphash{$retfield})
 				{
-					print "$key\t$retfield:\t$tmphash{$retfield}\n";
+					$tmpdata.=$tmphash{$retfield}."\t";
+					#print "Index\t$key\t$retfield\t$tmphash{$retfield}\n";
 				}
 			}
+			print "$tmpdata\n";
 		}
 		
 	}
