@@ -1,0 +1,60 @@
+mirrors
+version 1.0
+
+This script is for finding mirrors for files on the web. It uses the www.filemirror.com site for this. Downloaders like getright also use this site to find mirrors.
+
+%perl mirror-1.0.pl -searchtype=(see below (1)) -searchname=(see below (2)) -returnedfield=(see below (3))
+
+	1)searchtype(s):
+		can be any of the following. 
+		These define how to use the searchname in 
+		the query
+		
+		a)begins 
+		b)contains 
+		c)equals
+		d)ends
+
+	2)searchname(f):
+		This is the name of a file I want (see (1))
+
+	3)returnedfield(r)
+		This is a multiple entry field. can be used 
+		more then once
+
+		valid entries are:
+		a)date 		(the date of the file found)
+		b)filename 	(the filename of the file)
+		c)filesize	(the size of the found file)
+		d)href		(this is the location of file)
+
+
+This script is slightly documented by pod. This readme is more up to date. 
+
+There are a few more options but you can see for yourself. If you pass in a url as "requesturl" it will find the url ignore the other fields except the retured field and output the tags for the html file you found. this was a side effect for what I wanted to do so I left it in. Use at your own risk.
+
+This script uses the following librarys
+	Getopt::Long
+	LWP::Simple
+	diagnostics
+
+Most of these should already be installed.
+
+
+The output format of the data will contain the following entry at the start of the line (a number).
+This number is a index for the entry. 
+
+This way you can load them into a hash if you want or just use it to track which returned field goes with what filename. 
+
+If you don't want this feature just comment out the portion that prints the key in the loop in main.
+
+
+If anyone wants to make a suggestion or comment please feel free at mehollifield@magnalinea.com. 
+
+I created this routine to allow people to get multiple locations for a file so they could implement a (getright type system) downloader that could break apart the file and download efficiently. Also could be used for mirroring programs that would then be able to mirror from multiple sites instead of one side (example being mirros of linux distros).
+
+
+
+Good luck.
+
+Michael
